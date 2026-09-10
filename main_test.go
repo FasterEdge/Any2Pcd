@@ -275,7 +275,8 @@ DATA binary
 	if err != nil {
 		t.Fatalf("readPCD binary: %v", err)
 	}
-	if got[1][3] != 2 || got[0][0] != 0.1 {
+	// float32 反序列化到 float64 有表示误差(如 0.1f -> 0.10000000149011612), 用容差比较。
+	if math.Abs(got[1][3]-2) > 1e-6 || math.Abs(got[0][0]-0.1) > 1e-6 {
 		t.Fatalf("binary PCD 值错误: %v", got)
 	}
 }
