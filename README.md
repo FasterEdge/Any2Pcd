@@ -1,18 +1,19 @@
-# any2pcd —— 文本/二进制点云转 PCD 工具(FasterEdge 点云工具)
+<div align="center">
+  <img src="./Logo.png" alt="logo" width="100" />
+  <h2>Any2Pcd</h2>
+  <h3>文本/二进制点云转 PCD 工具(FasterEdge 点云工具)</h3>
+</div>
 
-用 Go 编写的点云格式转换器:把 **bin / 文本 / CSV / PCD** 点云文件转换为标准
-**PCD v0.7**(PCL Point Cloud Data)文件。纯标准库实现,零第三方依赖。
+### 一、项目简介
 
-与常见点云工具的关键差异:
+- Any2Pcd 是用 Go 编写的点云格式转换器: 把 **bin / 文本 / CSV / PCD** 点云文件转换为标准 **PCD v0.7**(PCL Point Cloud Data)文件。纯标准库实现,零第三方依赖。
 
-- **保持时序**: 转换过程严格按输入点的**原始顺序**写出, 不做任何排序/去重/重排。
-  带时间戳的雷达 bin(如 `x y z timestamp` 每点 4×float32)用
-  `-fields "x,y,z,timestamp"` 即可把时间戳映射为 PCD 字段原样保留。
-- **UTF-8 无 BOM**: 输出文件为 UTF-8(无 BOM)编码; PCD 内容为 ASCII 子集,
-  不依赖系统 locale/编码集, 任何环境下解码一致。
-- **自动探测**: 按扩展名与内容识别输入格式, 无需手动指定 `-from`。
+- 与常见点云工具的关键差异:
+  - **保持时序**: 转换过程严格按输入点的**原始顺序**写出, 不做任何排序/去重/重排。带时间戳的雷达 bin(如 `x y z timestamp` 每点 4×float32)用 `-fields "x,y,z,timestamp"` 即可把时间戳映射为 PCD 字段原样保留。
+  - **UTF-8 无 BOM**: 输出文件为 UTF-8(无 BOM)编码; PCD 内容为 ASCII 子集, 不依赖系统 locale/编码集, 任何环境下解码一致。
+  - **自动探测**: 按扩展名与内容识别输入格式, 无需手动指定 `-from`。
 
-## 支持清单
+### 二、支持清单
 
 | 输入 | 说明 |
 | --- | --- |
@@ -21,7 +22,7 @@
 | `.csv` | 逗号分隔(同文本) |
 | `.pcd` | 已是 PCD 的文件(ASCII 或 binary, 仅支持 4 字节数值字段)——可做格式重编码, 如 binary→ascii、字段精简 |
 
-## 用法
+### 三、用法
 
 ```
 any2pcd [选项] [文件...]        # 转换文件, 缺省读标准输入
@@ -39,7 +40,7 @@ cat x.bin | any2pcd -from bin   # 从标准输入读取
 | `-skip-bad` | 跳过坏行(仅 text/csv; 默认失败) |
 | `-version` | 打印版本 |
 
-## 示例
+### 四、示例
 
 ```sh
 # KITTI 风格 bin(x y z intensity)→ ASCII PCD
@@ -64,7 +65,7 @@ any2pcd -from pcd in_binary.pcd > out_ascii.pcd
 any2pcd -outdir ./out scan1.bin scan2.bin scan3.bin
 ```
 
-## PCD 输出格式
+### 五、输出格式
 
 ```
 # .PCD v0.7 - Point Cloud Data file format
@@ -84,16 +85,14 @@ DATA ascii|binary
 - ASCII 模式每行一个点、空格分隔, 值用最短无损表示(`%g`), 保证 float32 往返一致。
 - binary 模式 body 为每点 N×4 字节 little-endian float32, 与常见 bin 读取端兼容。
 
-## 约束
+### 六、约束
 
-- 标准输入单次读入内存(点云数据量通常可控; 超大文件建议用文件输入, 内存按
-  文件大小占用)。
+- 标准输入单次读入内存(点云数据量通常可控; 超大文件建议用文件输入, 内存按文件大小占用)。
 - `-output` 仅限单输入; 多文件输出用 `-outdir`。
-- PCD 输入仅支持 4 字节数值字段(`F`/`U`/`I`), 不支持 double/多 COUNT; 遇到
-  double 字段请先用其它工具转换。
+- PCD 输入仅支持 4 字节数值字段(`F`/`U`/`I`), 不支持 double/多 COUNT; 遇到 double 字段请先用其它工具转换。
 - 字段名仅允许 ASCII 字母/数字/下划线(PCD 规范兼容, 也保证 UTF-8 安全)。
 
-## 构建
+### 七、构建与测试
 
 需要宿主机 Go 1.25+:
 
@@ -102,9 +101,10 @@ go build -trimpath -ldflags="-s -w" -o any2pcd .
 go test ./...      # 单元测试(bin 往返/保序/无 BOM/字段映射/PCD 重编码)
 ```
 
-随 FasterEdgeOS `OVERLAY_BUNDLES` 启用时可作为系统初始工具打包(离线升级可设
-`ANY2PCD_SOURCE_DIR` 指向本地新版源码目录)。
+随 FasterEdgeOS `OVERLAY_BUNDLES` 启用时可作为系统初始工具打包(离线升级可设 `ANY2PCD_SOURCE_DIR` 指向本地新版源码目录)。
 
-## License
+### 八、License
 
 Apache-2.0(与 DontCrack 系列一致), 详见仓库 LICENSE。
+
+当前版本: **1.0.20260913**
