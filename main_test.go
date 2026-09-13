@@ -370,3 +370,56 @@ func TestFieldsMismatchText(t *testing.T) {
 		t.Fatal("期望字段数不匹配报错")
 	}
 }
+
+func TestText2ColumnFeatureNames(t *testing.T) {
+	pt, err := loadPoints("text", []byte("1 2\n3 4\n"), "t.txt", &options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(pt.fields) != 2 || pt.fields[0].Name != "feature0" || pt.fields[1].Name != "feature1" {
+		t.Fatalf("2 列字段 = %v, 期望 feature0 feature1", pt.fields)
+	}
+}
+
+func TestPCDBinaryUnsignedLargeValue(t *testing.T) {
+	head := "# .PCD v0.7\nVERSION 0.7\nFIELDS x y z\nSIZE 4 4 4\nTYPE U U U\nCOUNT 1 1 1\nWIDTH 1\nHEIGHT 1\nVIEWPOINT 0 0 0 1 0 0 0\nPOINTS 1\nDATA binary\n"
+	var body bytes.Buffer
+	binary.Write(&body, binary.LittleEndian, uint32(0xFFFFFFFF))
+	binary.Write(&body, binary.LittleEndian, uint32(0x80000000))
+	binary.Write(&body, binary.LittleEndian, uint32(7))
+	_, rows, err := readPCD(append([]byte(head), body.Bytes()...))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rows[0][0] != 4294967295 || rows[0][1] != 2147483648 || rows[0][2] != 7 {
+		t.Fatalf("U 字段解析 = %v, 期望 4294967295 2147483648 7", rows[0])
+	}
+}
+
+func TestPCDRejectMultiCount(t *testing.T) {
+	head := "# .PCD v0.7\nVERSION 0.7\nFIELDS x y\nSIZE 4 4\nTYPE F F\nCOUNT 2 1\nPOINTS 1\nDATA ascii\n"
+	_, _, err := readPCD([]byte(head))
+	if err == nil {
+		t.Fatal("期望 COUNT>1 被拒绝")
+	}
+}
+
+func FuzzReadText(f *testing.F) {
+	f.Add("1 2 3\n4 5 6\n")
+	f.Add("1,2,3\nbad\n")
+	f.Add("# c\n1 2\n")
+	f.Add("nan inf -inf\n")
+	f.Fuzz(func(t *testing.T, s string) {
+		_, _ = readText([]byte(s), ' ', false)
+		_, _ = readText([]byte(s), ',', false)
+	})
+}
+
+func FuzzParseRow(f *testing.F) {
+	f.Add("1 2 3")
+	f.Add("0x1p2")
+	f.Add("-1.5e10")
+	f.Fuzz(func(t *testing.T, s string) {
+		_, _ = parseRow(strings.Fields(s))
+	})
+}

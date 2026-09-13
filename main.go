@@ -91,6 +91,13 @@ func defaultFieldNames(n int) []string {
 	if n < 1 {
 		return nil
 	}
+	if n < 3 {
+		names := make([]string, n)
+		for i := range names {
+			names[i] = fmt.Sprintf("feature%d", i)
+		}
+		return names
+	}
 	switch n {
 	case 3:
 		return []string{"x", "y", "z"}
@@ -102,9 +109,7 @@ func defaultFieldNames(n int) []string {
 		return []string{"x", "y", "z", "intensity", "r", "g", "b"}
 	}
 	names := make([]string, 0, n)
-	if n >= 3 {
-		names = append(names, "x", "y", "z")
-	}
+	names = append(names, "x", "y", "z")
 	for i := 3; i < n; i++ {
 		names = append(names, fmt.Sprintf("feature%d", i-3))
 	}
@@ -370,6 +375,8 @@ func readPCD(data []byte) (names []string, rows [][]float64, err error) {
 				raw := binary.LittleEndian.Uint32(buf)
 				if types[j] == 'F' {
 					row[j] = float64(math.Float32frombits(raw))
+				} else if types[j] == 'U' {
+					row[j] = float64(raw)
 				} else {
 					row[j] = float64(int32(raw))
 				}
