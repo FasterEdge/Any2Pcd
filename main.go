@@ -37,7 +37,7 @@ const maxFields = 16
 var fieldNameRe = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
 // version 与 FasterEdge 版本链一致的语义化版本。
-const version = "1.0.0"
+const version = "1.0.20260913"
 
 // Field 描述输出 PCD 的一个字段。
 type Field struct {
@@ -84,8 +84,9 @@ func parseFields(s string) ([]string, error) {
 }
 
 // defaultFieldNames 按列数给出默认字段名。
-//  3 列 -> x y z; 4 列 -> x y z intensity; 6 列 -> x y z r g b;
-//  7 列 -> x y z intensity r g b; 其余 -> x y z feature0..featureN。
+//
+//	3 列 -> x y z; 4 列 -> x y z intensity; 6 列 -> x y z r g b;
+//	7 列 -> x y z intensity r g b; 其余 -> x y z feature0..featureN。
 func defaultFieldNames(n int) []string {
 	if n < 1 {
 		return nil
