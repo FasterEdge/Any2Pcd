@@ -364,8 +364,10 @@ func readPCD(data []byte) (names []string, rows [][]float64, err error) {
 	body := data[bodyStart:]
 	if binaryMode {
 		per := n * 4
-		if per == 0 || len(body) < per*count {
-			return nil, nil, fmt.Errorf("PCD binary body 大小不足: 需要 %d 字节, 实得 %d", per*count, len(body))
+		// 用除法比较代替 per*count 乘法: 恶意 POINTS 超大(如 10^18)会使 per*count
+		// 整数溢出为负, 绕过大小检查后越界读 body 触发 panic。
+		if per == 0 || count > len(body)/per {
+			return nil, nil, fmt.Errorf("PCD binary body 大小不足: 每点 %d 字节 × %d 点, 实得 %d 字节", per, count, len(body))
 		}
 		buf := make([]byte, 4)
 		for i := 0; i < count; i++ {
