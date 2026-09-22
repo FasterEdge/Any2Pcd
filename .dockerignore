@@ -1,0 +1,10 @@
+# 构建上下文排除项: 避免本地产物/密钥/版本库进入镜像构建上下文
+.git
+.gitignore
+*.exe
+*.log
+.idea/
+.vscode/
+README*.md
+Logo.png
+testdata/
