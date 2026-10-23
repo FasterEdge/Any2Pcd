@@ -42,7 +42,7 @@ jobs:
         else
           tar czf ../any2pcd-${{ matrix.target }}.tar.gz any2pcd
         fi
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: 'any2pcd-${{ matrix.target }}'
         path: '${{ github.workspace }}/any2pcd-${{ matrix.target }}.*'
@@ -58,7 +58,7 @@ jobs:
       run: docker build -t any2pcd .
     - name: '导出镜像包'
       run: docker save any2pcd | gzip > any2pcd-image.tar.gz
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: 'any2pcd-docker-image'
         path: 'any2pcd-image.tar.gz'
