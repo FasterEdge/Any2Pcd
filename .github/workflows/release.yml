@@ -25,7 +25,7 @@ jobs:
           - { target: windows-amd64, goos: windows, goarch: amd64, ext: .exe }
           - { target: windows-arm64, goos: windows, goarch: arm64, ext: .exe }
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: actions/setup-go@v7
       with:
         go-version: '1.26'
@@ -53,7 +53,7 @@ jobs:
     name: '构建 Docker 镜像'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: '构建镜像'
       run: docker build -t any2pcd .
     - name: '导出镜像包'
